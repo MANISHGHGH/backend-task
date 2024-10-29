@@ -95,8 +95,8 @@ async def delete_user(user_id: str):
 # Send Invitation Email via Gmail SMTP
 @app.post("/send_invite")
 async def send_invite():
-    sender_email = "bhadauriyamanish666@gmail.com"  # Replace with your Gmail address
-    sender_password = "manyabhaisingh"  # Replace with your Gmail app password
+    sender_email = "bhadaurimanish666@gmail.com"  # Replace with your Gmail address
+    sender_password = ""  # Replace with your Gmail app password
     recipients = [
         "shraddha@aviato.consulting",
         "pooja@aviato.consulting",
