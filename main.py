@@ -10,58 +10,58 @@ import json
 app = FastAPI()
 
 # Sample JSON data
-json_data = '''{
-  "employee": {
-    "id": 12345,
-    "name": "John Doe",
-    "contact": {
-      "email": "john.doe@example.com",
-      "phone": "123-456-7890"
-    },
-    "projects": [
-      {
-        "project_id": 1,
-        "name": "Project Alpha",
-        "details": {
-          "start_date": "2023-01-15",
-          "end_date": "2023-07-30",
-          "team_members": [
+json_data = {
+    "employee": {
+        "id": 12345,
+        "name": "John Doe",
+        "contact": {
+            "email": "john.doe@example.com",
+            "phone": "123-456-7890"
+        },
+        "projects": [
             {
-              "id": 101,
-              "name": "Alice Smith",
-              "role": "Developer"
+                "project_id": 1,
+                "name": "Project Alpha",
+                "details": {
+                    "start_date": "2023-01-15",
+                    "end_date": "2023-07-30",
+                    "team_members": [
+                        {
+                            "id": 101,
+                            "name": "Alice Smith",
+                            "role": "Developer"
+                        },
+                        {
+                            "id": 102,
+                            "name": "Bob Johnson",
+                            "role": "Tester"
+                        }
+                    ]
+                }
             },
             {
-              "id": 102,
-              "name": "Bob Johnson",
-              "role": "Tester"
+                "project_id": 2,
+                "name": "Project Beta",
+                "details": {
+                    "start_date": "2023-08-01",
+                    "end_date": "2023-12-31",
+                    "team_members": [
+                        {
+                            "id": 103,
+                            "name": "Charlie Lee",
+                            "role": "Designer"
+                        },
+                        {
+                            "id": 104,
+                            "name": "David Kim",
+                            "role": "Product Manager"
+                        }
+                    ]
+                }
             }
-          ]
-        }
-      },
-      {
-        "project_id": 2,
-        "name": "Project Beta",
-        "details": {
-          "start_date": "2023-08-01",
-          "end_date": "2023-12-31",
-          "team_members": [
-            {
-              "id": 103,
-              "name": "Charlie Lee",
-              "role": "Designer"
-            },
-            {
-              "id": 104,
-              "name": "David Kim",
-              "role": "Product Manager"
-            }
-          ]
-        }
-      }
-    ]
-  }
-}'''
+        ]
+    }
+}
 
 # Add User
 @app.post("/add_users")
@@ -95,8 +95,8 @@ async def delete_user(user_id: str):
 # Send Invitation Email via Gmail SMTP
 @app.post("/send_invite")
 async def send_invite():
-    sender_email = "bhadaurimanish666@gmail.com"  # Replace with your Gmail address
-    sender_password = ""  # Replace with your Gmail app password
+    sender_email = "bhadauriyamanish666@gmail.com"  # Replace with your Gmail address
+    sender_password = "manyabhaisingh"  # Replace with your Gmail app password
     recipients = [
         "shraddha@aviato.consulting",
         "pooja@aviato.consulting",
@@ -131,38 +131,18 @@ async def send_invite():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# Root Endpoint
+@app.get("/")
+async def root():
+    # Return the JSON data directly at the root endpoint
+    return json_data
+
 # Get Projects as List of Dictionaries
 @app.get("/projects")
 async def get_projects():
-    # Load JSON data
-    data = json.loads(json_data)
-
-    # Extract employee data
-    projects = data['employee']['projects']
-
-    # Create a list of dictionaries
-    project_list = []
-    for project in projects:
-        project_info = {
-            'project_id': project['project_id'],
-            'project_name': project['name'],
-            'start_date': project['details']['start_date'],
-            'end_date': project['details']['end_date'],
-            'team_members': []
-        }
-
-        # Extract team members
-        for member in project['details']['team_members']:
-            member_info = {
-                'id': member['id'],
-                'name': member['name'],
-                'role': member['role']
-            }
-            project_info['team_members'].append(member_info)
-
-        project_list.append(project_info)
-
-    return project_list
+    # Directly return the projects data
+    projects = json_data['employee']['projects']
+    return projects
 
 if __name__ == "__main__":
     import uvicorn
