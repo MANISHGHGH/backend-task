@@ -1,15 +1,16 @@
-from fastapi import FastAPI, HTTPException
-from mains import db
-from models import User, UpdateUser
+from fastapi import FastAPI, HTTPException 
+from mains import db  # Ensure this imports your Firestore db instance correctly
+from models import Employee, UpdateUser  # Ensure Employee and UpdateUser are Pydantic models
 from fastapi.responses import JSONResponse
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import json
+from typing import List
 
 app = FastAPI()
 
-# Sample JSON data
+# Sample JSON data (as Employee)
 json_data = {
     "employee": {
         "id": 12345,
@@ -64,20 +65,26 @@ json_data = {
 }
 
 # Add User
-@app.post("/add_users")
-async def add_user(user: User):
-    doc_ref = db.collection("users").document()
-    doc_ref.set(user.dict())
-    return {"id": doc_ref.id, **user.dict()}
+@app.post("/add_users", response_model=Employee) 
+async def add_user(user: Employee):
+    try:
+        # Create a new document in Firestore
+        doc_ref = db.collection("users").document()
+        # Set the document with the user data
+        doc_ref.set(user.dict())
+        return {"id": doc_ref.id, **user.dict()}
+    except Exception as e:
+        print(f"Error adding user: {str(e)}")  # Log the error for debugging
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 # Get All Users
-@app.get("/get_users")
+@app.get("/get_users", response_model=List[Employee])
 async def get_users():
     users = [doc.to_dict() for doc in db.collection("users").stream()]
     return users
 
 # Update User
-@app.patch("/update_users/{user_id}")
+@app.patch("/update_users/{user_id}", response_model=UpdateUser)
 async def update_user(user_id: str, user: UpdateUser):
     doc_ref = db.collection("users").document(user_id)
     doc = doc_ref.get()
@@ -134,13 +141,11 @@ async def send_invite():
 # Root Endpoint
 @app.get("/")
 async def root():
-    # Return the JSON data directly at the root endpoint
     return json_data
 
 # Get Projects as List of Dictionaries
 @app.get("/projects")
 async def get_projects():
-    # Directly return the projects data
     projects = json_data['employee']['projects']
     return projects
 
